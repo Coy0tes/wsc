@@ -1,0 +1,134 @@
+20170530：
+	1、修正 商品列表 菜单里运费设置显示不一致
+	2、修正 代金券管理 菜单使用状态不显示
+	3、新加 会员管理 list页面显示佣金
+
+
+20170529：
+	1.新加 
+		在订单管理添加 物流单号按钮 form页面 ，
+		提交物流单号后将订单状态改为待收货
+	2.新加 字段 goods_order
+		字段	类型	长度小数点	备注
+		yunfei	decimal	 10	 2		运费
+	3.去掉 
+		goodsorderlist.jsp 页面 代金券ID、领取方式、领取/邮寄时间、备注
+	4.修改
+		数据库	goods_yunfeishezhi
+		字段			类型	长度 小数点
+		yunfeishezhi	decimal	10	 2
+	5.修改
+		运费管理栏目 ，第一次可输入一条运费信息，再次输入则更新信息，数据库中只能保存一条信息，，每次输入，都是更新数据库第一条信息
+		
+
+20170528：
+	
+	3.从会员表里面提取字段（姓名、手机号）到代金券管理赋值给（提成人姓名、提成人手机号、客户姓名）:
+	在要操作的xml里修改，将要显示的字段，把a.name跟a.mobile替换成（select name from member）/（select mobile from member）
+	分别在 分销佣金、充值记录里调用 member 的姓名跟用户，方法同上
+	
+	2.
+		1.添加数据库(日志表)：
+			hs_error_sql.sql
+			点菜单按钮就进入 form 页面，不进 list 页面，并添加 ‘提交’ 按钮
+		2.添加运费管理	
+		3.添加数据库 轮播图管理	banner_agency
+	
+	1.添加字段（商品管理 goods）：
+		字段		类型		备注				备注
+		yunfei		varcher64	是否包邮（字典）	数据库中用 0/1 显示
+		sfkydjq		varchr64	是否可用代金券		数据库中用 0/1 显示
+	
+	
+	
+20170527：
+	
+	修改goodsorderForm.jsp中 148 行订单明细
+
+20170526:
+	1.
+	更新表 goodsorder (主表) ,字段为
+		字段			类型 长度		备注
+		wxopenid	varcher64	微信Openid
+		khname		varcher64	客户姓名
+		ddjg		decimal10	订单总价
+		sfsydjq		varcher64	是否使用代金券
+		djqid		varcher64	代金券 id
+		djqjine		decimal10	代金券金额
+		xfje		decimal10	实际支付金额
+		lqfs		varcher64	领取方式
+		lqyjsj		varcher64	领取邮寄时间
+		mobile		varcher64	联系方式
+		address		varcher64	联系地址
+		status		varcher64	订单状态
+		wldh		varcher64	物流单号
+	新加表 goods_order_detail (附表) ，字段为
+		字段			类型 长度		备注
+		orderid		varcher64	对应总表id
+		goodsid		varcher64	商品ID
+		goodsname	varcher64	商品名称
+		goodsguigeid	varcher64	商品规格ID
+		goodsguigename	varcher64	商品规格
+		goodscount	int11		购买数量
+		goodsprice	decimal10	商品单价
+		
+	2.
+	商品分类，商品管理，新闻分类，新闻管理   先按排序倒序，再按发布时间倒序
+	充值额度档次， 按金额升序排
+	3.
+	遇到的问题
+	新生成的主附表单中附表对应总表的字段没有加 .id ，报错类似这样：
+		Type handler was null on parameter mapping for property 'orderid'. 
+		It was either not specified and/or could not be found for the javaType / jdbcType combination specified. 
+	解决方法：
+		在附表的 xml 中给每个对应主表的带 ''、""、#{} 的字段添加 .id 
+		PS:这个错误确实很头疼，粗心
+
+
+
+20170523:
+	新增图片广告位
+		数据库表名：dm_guanggaowei
+		字段：picture varcher（2000）
+			imgurl
+			sort
+		排序为自动排序
+		
+20170526:
+	1.
+	更新表 goodsorder (主表) ,字段为
+		字段			类型 长度		备注
+		wxopenid	varcher64	微信Openid
+		khname		varcher64	客户姓名
+		ddjg		decimal10	订单总价
+		sfsydjq		varcher64	是否使用代金券
+		djqid		varcher64	代金券 id
+		djqjine		decimal10	代金券金额
+		xfje		decimal10	实际支付金额
+		lqfs		varcher64	领取方式
+		lqyjsj		varcher64	领取邮寄时间
+		mobile		varcher64	联系方式
+		address		varcher64	联系地址
+		status		varcher64	订单状态
+		wldh		varcher64	物流单号
+	新加表 goods_order_detail (附表) ，字段为
+		字段			类型 长度		备注
+		orderid		varcher64	对应总表id
+		goodsid		varcher64	商品ID
+		goodsname	varcher64	商品名称
+		goodsguigeid	varcher64	商品规格ID
+		goodsguigename	varcher64	商品规格
+		goodscount	int11		购买数量
+		goodsprice	decimal10	商品单价
+		
+	2.
+	商品分类，商品管理，新闻分类，新闻管理   先按排序倒序，再按发布时间倒序
+	充值额度档次， 按金额升序排
+	3.
+	遇到的问题
+	新生成的主附表单中附表对应总表的字段没有加 .id ，报错类似这样：
+		Type handler was null on parameter mapping for property 'orderid'. It was ei
+		It was either not specified and/or could not be found for the javaType / jdb
+	解决方法：
+		在附表的 xml 中给每个对应主表的带 ''、""、#{} 的字段添加 .id 
+		PS:这个错误确实很头疼，粗心

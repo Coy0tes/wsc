@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.dmfenyongbili.dao.DmFenyongbiliDao">
+    
+	<sql id="dmFenyongbiliColumns">
+		a.id AS "id",
+		a.wk1 AS "wk1",
+		a.wk2 AS "wk2",
+		a.jmf AS "jmf",
+		a.jm1 AS "jm1",
+		a.jm2 AS "jm2",
+		a.jmf11 AS "jmf11",
+		a.jm11 AS "jm11",
+		a.jm22 AS "jm22",
+		a.jmtced AS "jmtced",
+		a.jmtcbl AS "jmtcbl",
+		a.txdzbl AS "txdzbl",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="dmFenyongbiliJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="DmFenyongbili" >
+		SELECT 
+			<include refid="dmFenyongbiliColumns"/>
+		FROM dm_fenyongbili a
+		<include refid="dmFenyongbiliJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="DmFenyongbili" >
+		SELECT 
+			<include refid="dmFenyongbiliColumns"/>
+		FROM dm_fenyongbili a
+		<include refid="dmFenyongbiliJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="DmFenyongbili" >
+		SELECT 
+			<include refid="dmFenyongbiliColumns"/>
+		FROM dm_fenyongbili a
+		<include refid="dmFenyongbiliJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO dm_fenyongbili(
+			id,
+			wk1,
+			wk2,
+			jmf,
+			jm1,
+			jm2,
+			jmf11,
+			jm11,
+			jm22,
+			jmtced,
+			jmtcbl,
+			txdzbl,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{wk1},
+			#{wk2},
+			#{jmf},
+			#{jm1},
+			#{jm2},
+			#{jmf11},
+			#{jm11},
+			#{jm22},
+			#{jmtced},
+			#{jmtcbl},
+			#{txdzbl},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE dm_fenyongbili SET 	
+			wk1 = #{wk1},
+			wk2 = #{wk2},
+			jmf = #{jmf},
+			jm1 = #{jm1},
+			jm2 = #{jm2},
+			jmf11 = #{jmf11},
+			jm11 = #{jm11},
+			jm22 = #{jm22},
+			jmtced = #{jmtced},
+			jmtcbl = #{jmtcbl},
+			txdzbl = #{txdzbl},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM dm_fenyongbili
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE dm_fenyongbili SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="DmFenyongbili" statementType="STATEMENT">
+		select * FROM dm_fenyongbili  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.news.dao.DmNewsDao">
+    
+	<sql id="dmNewsColumns">
+		a.id AS "id",
+		a.categoryid AS "category.id",
+		a.title AS "title",
+		a.imgurl AS "imgurl",
+		a.contents AS "contents",
+		a.sort AS "sort",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		category.name AS "category.name"
+	</sql>
+	
+	<sql id="dmNewsJoins">
+		LEFT JOIN dm_news_category category ON category.id = a.categoryid
+	</sql>
+	
+    
+	<select id="get" resultType="DmNews" >
+		SELECT 
+			<include refid="dmNewsColumns"/>
+		FROM dm_news a
+		<include refid="dmNewsJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="DmNews" >
+		SELECT 
+			<include refid="dmNewsColumns"/>
+		FROM dm_news a
+		<include refid="dmNewsJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="category != null and category.id != null and category.id != ''">
+				AND a.categoryid = #{category.id}
+			</if>
+			<if test="title != null and title != ''">
+				AND a.title LIKE 
+					<if test="dbName == 'oracle'">'%'||#{title}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{title}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{title},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.sort DESC, a.create_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="DmNews" >
+		SELECT 
+			<include refid="dmNewsColumns"/>
+		FROM dm_news a
+		<include refid="dmNewsJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO dm_news(
+			id,
+			categoryid,
+			title,
+			imgurl,
+			contents,
+			sort,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{category.id},
+			#{title},
+			#{imgurl},
+			#{contents},
+			#{sort},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE dm_news SET 	
+			categoryid = #{category.id},
+			title = #{title},
+			imgurl = #{imgurl},
+			contents = #{contents},
+			sort = #{sort},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM dm_news
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE dm_news SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="DmNews" statementType="STATEMENT">
+		select * FROM dm_news  where ${propertyName} = '${value}'
+	</select>
+	
+	<select id="findListBycategory" resultType="DmNewsCategory">
+		SELECT 
+			*
+		FROM dm_news_category a
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+				<if test="dbName == 'oracle'">#{name}||'%'</if>
+				<if test="dbName == 'mssql'">#{name}+'%'</if>
+				<if test="dbName == 'mysql'">concat(#{name},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+</mapper>

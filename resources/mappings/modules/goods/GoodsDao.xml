@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.goods.dao.GoodsDao">
+    
+	<sql id="goodsColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.category AS "category.id",
+		a.yunfei AS "yunfei",
+		a.ison AS "ison",
+		a.sfkydjq AS "sfkydjq",
+		a.sffhyj AS "sffhyj",
+		a.kcsl AS "kcsl",
+		a.xjrq AS "xjrq",
+		a.sfyj AS "sfyj",
+		a.mainpicurl AS "mainpicurl",
+		a.pictures AS "pictures",
+		a.contents AS "contents",
+		a.price AS "price",
+		a.sort AS "sort",
+		a.isyue AS "isyue",
+		a.xgnum AS "xgnum",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		category.name AS "category.name"
+	</sql>
+	
+	<sql id="goodsJoins">
+		LEFT JOIN goods_category category ON category.id = a.category
+	</sql>
+	
+    
+	<select id="get" resultType="Goods" >
+		SELECT 
+			<include refid="goodsColumns"/>
+		FROM goods a
+		<include refid="goodsJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Goods" >
+		SELECT 
+			<include refid="goodsColumns"/>
+		FROM goods a
+		<include refid="goodsJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="category != null and category.id != null and category.id != ''">
+				AND a.category = #{category.id}
+			</if>
+			<if test="ison != null and ison != ''">
+				AND a.ison = #{ison}
+			</if>
+			<if test="sfyj != null and sfyj != ''">
+				AND a.sfyj = #{sfyj}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.sort DESC, a.create_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Goods" >
+		SELECT 
+			<include refid="goodsColumns"/>
+		FROM goods a
+		<include refid="goodsJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO goods(
+			id,
+			name,
+			category,
+			yunfei,
+			ison,
+			sfkydjq,
+			sffhyj,
+			kcsl,
+			xjrq,
+			sfyj,
+			mainpicurl,
+			pictures,
+			contents,
+			price,
+			sort,
+			isyue,
+			xgnum,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{name},
+			#{category.id},
+			#{yunfei},
+			#{ison},
+			#{sfkydjq},
+			#{sffhyj},
+			#{kcsl},
+			#{xjrq},
+			#{sfyj},
+			#{mainpicurl},
+			#{pictures},
+			#{contents},
+			#{price},
+			#{sort},
+			#{isyue},
+			#{xgnum},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE goods SET 	
+			name = #{name},
+			category = #{category.id},
+			yunfei = #{yunfei},
+			ison = #{ison},
+			sfkydjq = #{sfkydjq},
+			sffhyj = #{sffhyj},
+			kcsl = #{kcsl},
+			xjrq = #{xjrq},
+			sfyj = #{sfyj},
+			mainpicurl = #{mainpicurl},
+			pictures = #{pictures},
+			contents = #{contents},
+			price = #{price},
+			sort = #{sort},
+			isyue = #{isyue},
+			xgnum = #{xgnum},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM goods
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE goods SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="Goods" statementType="STATEMENT">
+		select * FROM goods  where ${propertyName} = '${value}'
+	</select>
+	
+	<select id="findListBycategory" resultType="GoodsCategory">
+		SELECT 
+			*
+		FROM goods_category a
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+				<if test="dbName == 'oracle'">#{name}||'%'</if>
+				<if test="dbName == 'mssql'">#{name}+'%'</if>
+				<if test="dbName == 'mysql'">concat(#{name},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+</mapper>

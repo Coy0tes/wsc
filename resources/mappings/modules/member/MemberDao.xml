@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.member.dao.MemberDao">
+    
+	<sql id="memberColumns">
+		a.id AS "id",
+		a.wxopenid AS "wxopenid",
+		a.name AS "name",
+		a.mobile AS "mobile",
+		a.shrdh AS "shrdh",
+		a.address AS "address",
+		a.tjrwxopenid AS "tjrwxopenid",
+		IFNULL(a.yue,0) AS "yue",
+		IFNULL(a.yongjin,0) AS "yongjin",
+		a.province AS "province",
+		a.city AS "city",
+		a.county AS "county",
+		a.haibaourl AS "haibaourl",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.headimgurl AS "headimgurl",
+		a.nickname AS "nickname",
+		IFNULL(a.yongjinytx,0) AS "yongjinytx",
+		IFNULL(a.yongjin,0)+IFNULL(a.yongjinytx,0) AS "yongjinls"
+	</sql>
+	
+	<sql id="memberJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="Member" >
+		SELECT 
+			<include refid="memberColumns"/>
+		FROM member a
+		<include refid="memberJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Member" >
+		SELECT 
+			<include refid="memberColumns"/>
+		FROM member a
+		<include refid="memberJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="mobile != null and mobile != ''">
+				AND a.mobile LIKE 
+					<if test="dbName == 'oracle'">'%'||#{mobile}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{mobile}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{mobile},'%')</if>
+			</if>
+			<if test="tjrwxopenid != null and tjrwxopenid != ''">
+				AND a.tjrwxopenid = #{tjrwxopenid}
+			</if>
+			<if test="wxopenid != null and wxopenid != ''">
+				AND a.wxopenid = #{wxopenid}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Member" >
+		SELECT 
+			<include refid="memberColumns"/>
+		FROM member a
+		<include refid="memberJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<update id="update">
+		UPDATE member SET 	
+			wxopenid = #{wxopenid},
+			name = #{name},
+			mobile = #{mobile},
+			shrdh = #{shrdh},
+			address = #{address},
+			tjrwxopenid = #{tjrwxopenid},
+			yue = #{yue},
+			yongjin = #{yongjin},
+			haibaourl = #{haibaourl},
+			province = #{province},
+			city = #{city},
+			county = #{county},
+			remarks = #{remarks},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updateYue">
+		UPDATE member SET 	
+			yue = IFNULL(yue,0) + #{chongzhijine}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updateYongjin">
+		UPDATE member SET 	
+			yongjin = IFNULL(yongjin,0) + #{yongjin}
+		WHERE wxopenid = #{wxopenid}
+	</update>
+	
+	<update id="jineSave">
+		UPDATE member SET 	
+			yue = IFNULL(yue,0) + #{yue}
+		WHERE wxopenid = #{wxopenid}
+	</update>
+	
+	<insert id="insert">
+		INSERT INTO member(
+			id,
+			wxopenid,
+			name,
+			mobile,
+			shrdh,
+			address,
+			tjrwxopenid,
+			yue,
+			yongjin,
+			haibaourl,
+			province,
+			city,
+			county,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{wxopenid},
+			#{name},
+			#{mobile},
+			#{shrdh},
+			#{address},
+			#{tjrwxopenid},
+			#{yue},
+			#{yongjin},
+			#{haibaourl},
+			#{province},
+			#{city},
+			#{county},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<!-- update -->
+	
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM member
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE member SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="Member" statementType="STATEMENT">
+		select * FROM member  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

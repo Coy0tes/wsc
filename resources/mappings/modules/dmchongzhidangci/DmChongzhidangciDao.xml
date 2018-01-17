@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.dmchongzhidangci.dao.DmChongzhidangciDao">
+    
+	<sql id="dmChongzhidangciColumns">
+		a.id AS "id",
+		a.jine AS "jine",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="dmChongzhidangciJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="DmChongzhidangci" >
+		SELECT 
+			<include refid="dmChongzhidangciColumns"/>
+		FROM dm_chongzhidangci a
+		<include refid="dmChongzhidangciJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="DmChongzhidangci" >
+		SELECT 
+			<include refid="dmChongzhidangciColumns"/>
+		FROM dm_chongzhidangci a
+		<include refid="dmChongzhidangciJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="jine != null and jine != ''">
+				AND a.jine = #{jine}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.jine ASC, a.create_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="DmChongzhidangci" >
+		SELECT 
+			<include refid="dmChongzhidangciColumns"/>
+		FROM dm_chongzhidangci a
+		<include refid="dmChongzhidangciJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO dm_chongzhidangci(
+			id,
+			jine,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{jine},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE dm_chongzhidangci SET 	
+			jine = #{jine},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM dm_chongzhidangci
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE dm_chongzhidangci SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="DmChongzhidangci" statementType="STATEMENT">
+		select * FROM dm_chongzhidangci  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.goodsorder.dao.GoodsOrderDao">
+    
+	<sql id="goodsOrderColumns">
+		a.id AS "id",
+		a.wxopenid AS "wxopenid",
+		a.khname AS "khname",
+		a.ddjg AS "ddjg",
+		a.sfsydjq AS "sfsydjq",
+		a.djqid AS "djqid",
+		a.djqjine AS "djqjine",
+		a.xfje AS "xfje",
+		a.lqfs AS "lqfs",
+		a.lqyjsj AS "lqyjsj",
+		a.mobile AS "mobile",
+		a.address AS "address",
+		a.status AS "status",
+		a.wldh AS "wldh",
+		a.yunfei AS "yunfei",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.kdgs AS "kdgs",
+		(select headimgurl from member where wxopenid = a.wxopenid) AS "headimgurl",
+		(select nickname from member where wxopenid = a.wxopenid) AS "nickname"
+	</sql>
+	
+	<sql id="goodsOrderJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="GoodsOrder" >
+		SELECT 
+			<include refid="goodsOrderColumns"/>
+		FROM goods_order a
+		<include refid="goodsOrderJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="GoodsOrder" >
+		SELECT 
+			<include refid="goodsOrderColumns"/>
+		FROM goods_order a
+		<include refid="goodsOrderJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="wxopenid != null and wxopenid != ''">
+				AND a.wxopenid LIKE 
+					<if test="dbName == 'oracle'">'%'||#{wxopenid}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{wxopenid}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{wxopenid},'%')</if>
+			</if>
+			<if test="khname != null and khname != ''">
+				AND a.khname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{khname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{khname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{khname},'%')</if>
+			</if>
+			<if test="mobile != null and mobile != ''">
+				AND a.mobile LIKE 
+					<if test="dbName == 'oracle'">'%'||#{mobile}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{mobile}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{mobile},'%')</if>
+			</if>
+			<if test="wldh != null and wldh != ''">
+				AND a.wldh = #{wldh}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="GoodsOrder" >
+		SELECT 
+			<include refid="goodsOrderColumns"/>
+		FROM goods_order a
+		<include refid="goodsOrderJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO goods_order(
+			id,
+			wxopenid,
+			khname,
+			ddjg,
+			sfsydjq,
+			djqid,
+			djqjine,
+			xfje,
+			lqfs,
+			lqyjsj,
+			mobile,
+			address,
+			status,
+			wldh,
+			yunfei,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			kdgs
+		) VALUES (
+			#{id},
+			#{wxopenid},
+			#{khname},
+			#{ddjg},
+			#{sfsydjq},
+			#{djqid},
+			#{djqjine},
+			#{xfje},
+			#{lqfs},
+			#{lqyjsj},
+			#{mobile},
+			#{address},
+			#{status},
+			#{wldh},
+			#{yunfei},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{kdgs}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE goods_order SET 	
+			wxopenid = #{wxopenid},
+			khname = #{khname},
+			ddjg = #{ddjg},
+			sfsydjq = #{sfsydjq},
+			djqid = #{djqid},
+			djqjine = #{djqjine},
+			xfje = #{xfje},
+			lqfs = #{lqfs},
+			lqyjsj = #{lqyjsj},
+			mobile = #{mobile},
+			address = #{address},
+			status = #{status},
+			wldh = #{wldh},
+			yunfei = #{yunfei},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			kdgs = #{kdgs}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM goods_order
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE goods_order SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="GoodsOrder" statementType="STATEMENT">
+		select * FROM goods_order  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

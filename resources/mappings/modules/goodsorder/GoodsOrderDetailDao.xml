@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.goodsorder.dao.GoodsOrderDetailDao">
+    
+	<sql id="goodsOrderDetailColumns">
+		a.id AS "id",
+		a.orderid AS "orderid.id",
+		a.goodsid AS "goodsid",
+		a.goodsname AS "goodsname",
+		a.goodsguigeid AS "goodsguigeid",
+		a.goodsguigename AS "goodsguigename",
+		a.goodscount AS "goodscount",
+		a.goodsprice AS "goodsprice"
+	</sql>
+	
+	<sql id="goodsOrderDetailJoins">
+		LEFT JOIN goods_order b ON b.id = a.orderid
+	</sql>
+	
+    
+	<select id="get" resultType="GoodsOrderDetail" >
+		SELECT 
+			<include refid="goodsOrderDetailColumns"/>
+		FROM goods_order_detail a
+		<include refid="goodsOrderDetailJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="GoodsOrderDetail" >
+		SELECT 
+			<include refid="goodsOrderDetailColumns"/>
+		FROM goods_order_detail a
+		<include refid="goodsOrderDetailJoins"/>
+		<where>
+			
+			<if test="orderid != null and orderid != ''">
+				AND a.orderid = #{orderid.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="GoodsOrderDetail" >
+		SELECT 
+			<include refid="goodsOrderDetailColumns"/>
+		FROM goods_order_detail a
+		<include refid="goodsOrderDetailJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO goods_order_detail(
+			id,
+			orderid,
+			goodsid,
+			goodsname,
+			goodsguigeid,
+			goodsguigename,
+			goodscount,
+			goodsprice
+		) VALUES (
+			#{id},
+			#{orderid.id},
+			#{goodsid},
+			#{goodsname},
+			#{goodsguigeid},
+			#{goodsguigename},
+			#{goodscount},
+			#{goodsprice}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE goods_order_detail SET 	
+			orderid = #{orderid.id},
+			goodsid = #{goodsid},
+			goodsname = #{goodsname},
+			goodsguigeid = #{goodsguigeid},
+			goodsguigename = #{goodsguigename},
+			goodscount = #{goodscount},
+			goodsprice = #{goodsprice}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM goods_order_detail
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE orderid = #{orderid.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE goods_order_detail SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE orderid = #{orderid}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="GoodsOrderDetail" statementType="STATEMENT">
+		select * FROM goods_order_detail  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

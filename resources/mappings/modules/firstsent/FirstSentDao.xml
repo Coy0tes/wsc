@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.firstsent.dao.FirstSentDao">
+    
+	<sql id="firstSentColumns">
+		a.id AS "id",
+		a.jine AS "jine",
+		a.begintime AS "begintime",
+		a.endtime AS "endtime",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="firstSentJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="FirstSent" >
+		SELECT 
+			<include refid="firstSentColumns"/>
+		FROM first_sent a
+		<include refid="firstSentJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="FirstSent" >
+		SELECT 
+			<include refid="firstSentColumns"/>
+		FROM first_sent a
+		<include refid="firstSentJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="FirstSent" >
+		SELECT 
+			<include refid="firstSentColumns"/>
+		FROM first_sent a
+		<include refid="firstSentJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO first_sent(
+			id,
+			jine,
+			begintime,
+			endtime,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{jine},
+			#{begintime},
+			#{endtime},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE first_sent SET 	
+			jine = #{jine},
+			begintime = #{begintime},
+			endtime = #{endtime},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM first_sent
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE first_sent SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="FirstSent" statementType="STATEMENT">
+		select * FROM first_sent  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

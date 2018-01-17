@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.yjtx.dao.YjtxDao">
+    
+	<sql id="yjtxColumns">
+		a.id AS "id",
+		a.wxopenid AS "wxopenid",
+		a.jine AS "jine",
+		a.status AS "status",
+		a.sdate AS "sdate",
+		(case when a.clzt='0' then '未处理' when a.clzt='1' then '审核通过' when a.clzt='2' then '审核不通过' else '' end) AS "clzt",
+		a.clremark AS "clremark",
+		a.cldate AS "cldate",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.daozhangjine AS "daozhangjine",
+		a.bank AS "bank",
+		a.cardid AS "cardid",
+		a.username AS "username",
+		a.mobile AS "mobile",
+		(select headimgurl from member where wxopenid = a.wxopenid) AS "headimgurl",
+		(select nickname from member where wxopenid = a.wxopenid) AS "nickname"
+	</sql>
+	
+	<sql id="yjtxJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="Yjtx" >
+		SELECT 
+			<include refid="yjtxColumns"/>
+		FROM yjtx a
+		<include refid="yjtxJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Yjtx" >
+		SELECT 
+			<include refid="yjtxColumns"/>
+		FROM yjtx a
+		<include refid="yjtxJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="status != null and status != ''">
+				AND a.status = #{status}
+			</if>
+			<if test="sdate != null and sdate != ''">
+				AND DATE_FORMAT(a.sdate,'%Y-%m-%d') = #{sdate}
+			</if>
+			<if test="cldate != null and cldate != ''">
+				AND DATE_FORMAT(a.cldate,'%Y-%m-%d') = #{cldate}
+			</if>
+			<if test="clzt != null and clzt != ''">
+				AND a.clzt = #{clzt}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Yjtx" >
+		SELECT 
+			<include refid="yjtxColumns"/>
+		FROM yjtx a
+		<include refid="yjtxJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO yjtx(
+			id,
+			wxopenid,
+			jine,
+			status,
+			sdate,
+			clzt,
+			clremark,
+			cldate,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			daozhangjine,
+			bank,
+			cardid,
+			username,
+			mobile
+		) VALUES (
+			#{id},
+			#{wxopenid},
+			#{jine},
+			#{status},
+			#{sdate},
+			#{clzt},
+			#{clremark},
+			#{cldate},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{daozhangjine},
+			#{bank},
+			#{cardid},
+			#{username},
+			#{mobile}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE yjtx SET 	
+			wxopenid = #{wxopenid},
+			jine = #{jine},
+			status = #{status},
+			sdate = #{sdate},
+			clzt = #{clzt},
+			clremark = #{clremark},
+			cldate = #{cldate},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			daozhangjine = #{daozhangjine},
+			bank = #{bank},
+			cardid = #{cardid},
+			username = #{username},
+			mobile = #{mobile}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updateShtg">
+		UPDATE yjtx SET 	
+			status = '已领取',
+			clzt = '1',
+			daozhangjine = #{daozhangjine},
+			cldate = now()
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updateShbtg">
+		UPDATE yjtx SET 	
+			clzt = '2',
+			cldate = now()
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM yjtx
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE yjtx SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="Yjtx" statementType="STATEMENT">
+		select * FROM yjtx  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>
